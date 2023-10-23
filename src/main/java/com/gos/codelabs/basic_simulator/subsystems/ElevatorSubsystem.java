@@ -10,6 +10,12 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DIOSim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.snobotv2.module_wrappers.BaseDigitalInputWrapper;
 import org.snobotv2.module_wrappers.rev.RevEncoderSimWrapper;
@@ -38,6 +44,10 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
     private final DigitalInput m_upperLimitSwitch;
 
     private ElevatorSimWrapper m_elevatorSim;
+
+    private Mechanism2d m_mech;
+    private MechanismRoot2d m_root;
+    private MechanismLigament2d m_elevator;
 
     private static final class ElevatorSimConstants {
         public static final double K_ELEVATOR_GEARING = 10.0;
@@ -69,6 +79,14 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
                     RevEncoderSimWrapper.create(m_liftMotor));
             m_elevatorSim.setLowerLimitSwitch(new BaseDigitalInputWrapper(new DIOSim(m_lowerLimitSwitch)::setValue));
             m_elevatorSim.setUpperLimitSwitch(new BaseDigitalInputWrapper(new DIOSim(m_upperLimitSwitch)::setValue));
+
+            // Create a Mechanism2d for visualization
+            m_mech = new Mechanism2d(10, 10);
+            m_root = m_mech.getRoot("root", 2.5, 0.25);
+            m_elevator = m_root.append(new MechanismLigament2d("elevator", ElevatorSimConstants.K_MIN_ELEVATOR_HEIGHT, 90, 6, new Color8Bit(Color.kFirstRed)));
+            m_elevator.append(new MechanismLigament2d("Manipulator", 1.5, 270, 6, new Color8Bit(Color.kAliceBlue)));
+
+            SmartDashboard.putData("ElevatorSim", m_mech);
         }
     }
 
@@ -81,6 +99,7 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
 
     @Override
     public void periodic() {
+        m_elevator.setLength(getHeight());
     }
 
     @Override

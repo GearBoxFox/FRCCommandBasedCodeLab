@@ -2,6 +2,7 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/ElevatorSim": "Mechanism2d",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/Lift To Position High": "Command",
       "/SmartDashboard/Lift To Position Low": "Command",
