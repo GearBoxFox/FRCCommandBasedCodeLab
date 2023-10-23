@@ -1,0 +1,24 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/Lift To Position High": "Command",
+      "/SmartDashboard/Lift To Position Low": "Command",
+      "/SmartDashboard/Lift To Position Mid": "Command",
+      "/SmartDashboard/Test Drive Distance Backwards": "Command",
+      "/SmartDashboard/Test Drive Distance Forwards": "Command",
+      "/SmartDashboard/Test Extend Punch": "Command",
+      "/SmartDashboard/Test Retract Punch": "Command",
+      "/SmartDashboard/Test Timed Drive Backwards": "Command",
+      "/SmartDashboard/Test Timed Drive Forwards": "Command"
+    },
+    "windows": {
+      "/SmartDashboard/Field": {
+        "window": {
+          "visible": true
+        }
+      }
+    }
+  }
+}
