@@ -5,10 +5,13 @@
 package com.gos.codelabs.basic_simulator;
 
 import com.gos.codelabs.basic_simulator.auton_modes.AutonFactory;
+import com.gos.codelabs.basic_simulator.commands.ElevatorToPositionCommand;
+import com.gos.codelabs.basic_simulator.commands.ElevatorWithJoystickCommand;
+import com.gos.codelabs.basic_simulator.commands.MovePunchCommand;
 import com.gos.codelabs.basic_simulator.subsystems.ChassisSubsystem;
 import com.gos.codelabs.basic_simulator.subsystems.ElevatorSubsystem;
 import com.gos.codelabs.basic_simulator.subsystems.PunchSubsystem;
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**
@@ -25,8 +28,8 @@ public class RobotContainer implements AutoCloseable {
     private final PunchSubsystem m_punchSubsystem;
 
     // Joysticks
-    private final XboxController m_driverJoystick;
-    private final XboxController m_operatorJoystick;
+    private final CommandXboxController m_driverJoystick;
+    private final CommandXboxController m_operatorJoystick;
 
     private final AutonFactory m_autonFactory;
 
@@ -38,8 +41,8 @@ public class RobotContainer implements AutoCloseable {
         m_elevatorSubsystem = new ElevatorSubsystem();
         m_punchSubsystem = new PunchSubsystem();
 
-        m_driverJoystick = new XboxController(0);
-        m_operatorJoystick = new XboxController(1);
+        m_driverJoystick = new CommandXboxController(0);
+        m_operatorJoystick = new CommandXboxController(1);
 
         new CommandTester(this);
         m_autonFactory = new AutonFactory(m_chassisSubsystem, m_elevatorSubsystem, m_punchSubsystem);
@@ -56,7 +59,10 @@ public class RobotContainer implements AutoCloseable {
     }
 
     private void configureButtonBindings() {
-        // TODO implement
+        m_elevatorSubsystem.setDefaultCommand(new ElevatorWithJoystickCommand(m_elevatorSubsystem, m_driverJoystick));
+
+        m_driverJoystick.a().whileTrue(new MovePunchCommand(m_punchSubsystem, true));
+        m_driverJoystick.b().onTrue(new MovePunchCommand(m_punchSubsystem, false));
     }
 
     /**

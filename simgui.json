@@ -15,7 +15,7 @@
       "/SmartDashboard/Test Timed Drive Forwards": "Command"
     },
     "windows": {
-      "/SmartDashboard/Field": {
+      "/SmartDashboard/ElevatorSim": {
         "window": {
           "visible": true
         }

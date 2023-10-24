@@ -3,6 +3,7 @@ package com.gos.codelabs.basic_simulator.subsystems;
 import com.gos.codelabs.basic_simulator.Constants;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class PunchSubsystem extends SubsystemBase implements AutoCloseable {
@@ -21,18 +22,21 @@ public class PunchSubsystem extends SubsystemBase implements AutoCloseable {
 
     @Override
     public void periodic() {
+        SmartDashboard.putBoolean("Solenoid Extended?", isExtended());
     }
 
     public boolean isExtended() {
         // TODO implement
-        return false;
+        return m_punchSolenoid.get();
     }
 
     public void extend() {
         // TODO implement
+        m_punchSolenoid.set(true);
     }
 
     public void retract() {
         // TODO implement
+        m_punchSolenoid.set(false);
     }
 }
