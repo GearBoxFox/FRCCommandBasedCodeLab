@@ -28,7 +28,7 @@ public class ElevatorToPositionCommand extends CommandBase {
 
     @Override
     public void execute() {
-        // TODO implement
+        m_lift.goToPosition(m_goal);
     }
 
     @Override
@@ -39,6 +39,6 @@ public class ElevatorToPositionCommand extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        // TODO implement
+        m_lift.setSpeed(0.0);
     }
 }

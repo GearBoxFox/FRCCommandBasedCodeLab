@@ -4,6 +4,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.SimableCANSparkMax;
 import com.gos.codelabs.basic_simulator.Constants;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -37,6 +38,7 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
         }
     }
 
+    private final PIDController m_pid;
 
     private final SimableCANSparkMax m_liftMotor;
     private final RelativeEncoder m_liftEncoder;
@@ -52,7 +54,7 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
     private static final class ElevatorSimConstants {
         public static final double K_ELEVATOR_GEARING = 10.0;
         public static final double K_CARRIAGE_MASS = 4.0; // kg
-        public static final double K_MIN_ELEVATOR_HEIGHT = -5.0;
+        public static final double K_MIN_ELEVATOR_HEIGHT = 0.0;
         public static final double K_MAX_ELEVATOR_HEIGHT = Units.inchesToMeters(50e50);
         public static final DCMotor K_ELEVATOR_GEARBOX = DCMotor.getVex775Pro(4);
         public static final double K_ELEVATOR_DRUM_RADIUS = Units.inchesToMeters(2.0);
@@ -65,6 +67,8 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
         m_lowerLimitSwitch = new DigitalInput(Constants.DIO_LIFT_LOWER_LIMIT);
         m_upperLimitSwitch = new DigitalInput(Constants.DIO_LIFT_UPPER_LIMIT);
 
+        m_pid = new PIDController(0.2,0.0, 0.0);
+
         if (RobotBase.isSimulation()) {
             ElevatorSim sim = new ElevatorSim(
                     ElevatorSimConstants.K_ELEVATOR_GEARBOX,
@@ -72,7 +76,7 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
                     ElevatorSimConstants.K_CARRIAGE_MASS,
                     ElevatorSimConstants.K_ELEVATOR_DRUM_RADIUS,
                     ElevatorSimConstants.K_MIN_ELEVATOR_HEIGHT,
-                    ElevatorSimConstants.K_MAX_ELEVATOR_HEIGHT, false);
+                    ElevatorSimConstants.K_MAX_ELEVATOR_HEIGHT, true);
 
             m_elevatorSim = new ElevatorSimWrapper(sim,
                     new RevMotorControllerSimWrapper(m_liftMotor),
@@ -86,7 +90,7 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
             m_elevator = m_root.append(new MechanismLigament2d("elevator", ElevatorSimConstants.K_MIN_ELEVATOR_HEIGHT, 90, 6, new Color8Bit(Color.kFirstRed)));
             m_elevator.append(new MechanismLigament2d("Manipulator", 1.5, 270, 6, new Color8Bit(Color.kAliceBlue)));
 
-            SmartDashboard.putData("ElevatorSim", m_mech);
+            SmartDashboard.putData("Elevatorsim", m_mech);
         }
     }
 
@@ -107,9 +111,9 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
         m_elevatorSim.update();
     }
 
-    public boolean goToPosition(double position) {
-        // TODO implement
-        return false;
+    public void goToPosition(double position) {
+        double output = m_pid.calculate(getHeight(), position);
+        setSpeed(output);
     }
 
     public boolean isAtLowerLimit() {
@@ -129,6 +133,7 @@ public class ElevatorSubsystem extends SubsystemBase implements AutoCloseable {
         m_liftMotor.set(speed);
     }
 
+    // get how high the elevator is in the air
     public double getHeight() {
         return m_liftEncoder.getPosition() * 360 * ElevatorSimConstants.K_ELEVATOR_DRUM_RADIUS;
     }

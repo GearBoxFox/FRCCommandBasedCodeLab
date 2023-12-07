@@ -5,12 +5,17 @@
 package com.gos.codelabs.basic_simulator;
 
 import com.gos.codelabs.basic_simulator.auton_modes.AutonFactory;
+import com.gos.codelabs.basic_simulator.auton_modes.DriveForTimeCommand;
+import com.gos.codelabs.basic_simulator.auton_modes.SimpleAutoOneCommandGroup;
+import com.gos.codelabs.basic_simulator.auton_modes.TurnForTimeCommand;
 import com.gos.codelabs.basic_simulator.commands.ElevatorToPositionCommand;
 import com.gos.codelabs.basic_simulator.commands.ElevatorWithJoystickCommand;
 import com.gos.codelabs.basic_simulator.commands.MovePunchCommand;
 import com.gos.codelabs.basic_simulator.subsystems.ChassisSubsystem;
 import com.gos.codelabs.basic_simulator.subsystems.ElevatorSubsystem;
 import com.gos.codelabs.basic_simulator.subsystems.PunchSubsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -31,7 +36,7 @@ public class RobotContainer implements AutoCloseable {
     private final CommandXboxController m_driverJoystick;
     private final CommandXboxController m_operatorJoystick;
 
-    private final AutonFactory m_autonFactory;
+    private final SendableChooser<Command> m_autonFactory;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -45,7 +50,13 @@ public class RobotContainer implements AutoCloseable {
         m_operatorJoystick = new CommandXboxController(1);
 
         new CommandTester(this);
-        m_autonFactory = new AutonFactory(m_chassisSubsystem, m_elevatorSubsystem, m_punchSubsystem);
+
+        m_autonFactory = new SendableChooser<>();
+        m_autonFactory.setDefaultOption("Drive for 5 seconds", new DriveForTimeCommand(m_chassisSubsystem, 0.5, 5));
+        m_autonFactory.addOption("Turn for 5 seconds", new TurnForTimeCommand(m_chassisSubsystem, 0.5, 5));
+        m_autonFactory.addOption("Simple auto", new SimpleAutoOneCommandGroup(m_chassisSubsystem, m_elevatorSubsystem));
+
+        SmartDashboard.putData("Auton Chooser", m_autonFactory);
 
         // Configure the button bindings
         configureButtonBindings();
@@ -59,10 +70,12 @@ public class RobotContainer implements AutoCloseable {
     }
 
     private void configureButtonBindings() {
-        m_elevatorSubsystem.setDefaultCommand(new ElevatorWithJoystickCommand(m_elevatorSubsystem, m_driverJoystick));
+//        m_elevatorSubsystem.setDefaultCommand(new ElevatorWithJoystickCommand(m_elevatorSubsystem, m_driverJoystick));
 
         m_driverJoystick.a().whileTrue(new MovePunchCommand(m_punchSubsystem, true));
         m_driverJoystick.b().onTrue(new MovePunchCommand(m_punchSubsystem, false));
+
+        m_driverJoystick.rightTrigger().whileTrue(new ElevatorToPositionCommand(m_elevatorSubsystem, ElevatorSubsystem.Positions.MID));
     }
 
     /**
@@ -71,7 +84,7 @@ public class RobotContainer implements AutoCloseable {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return m_autonFactory.getAutonMode();
+        return m_autonFactory.getSelected();
     }
 
     public ElevatorSubsystem getElevator() {

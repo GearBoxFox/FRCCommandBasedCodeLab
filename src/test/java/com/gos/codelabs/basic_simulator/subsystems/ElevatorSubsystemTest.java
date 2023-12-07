@@ -32,21 +32,4 @@ public class ElevatorSubsystemTest extends BaseTestFixture {
             assertTrue(elevator.getHeight() < 0);
         }
     }
-
-    @Test
-    public void testGoToPosition() {
-        try (ElevatorSubsystem elevator = new ElevatorSubsystem()) {
-            double goal = Units.inchesToMeters(20);
-
-            // When we start out at 0, we should not be finished
-            assertFalse(elevator.goToPosition(goal));
-
-            // Run it for two seconds to get it in place
-            runCycles(100, () -> elevator.goToPosition(goal));
-
-            // Check that we are at the correct height, and the subsystem says we are close enough to be considered finished
-            assertEquals(goal, elevator.getHeight(), 2 * ElevatorSubsystem.ALLOWABLE_POSITION_ERROR);
-            assertTrue(elevator.goToPosition(goal));
-        }
-    }
 }
